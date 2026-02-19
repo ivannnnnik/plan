@@ -3,7 +3,9 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"plan/internal/model"
+	"strings"
 )
 
 type UserRepository struct {
@@ -54,4 +56,33 @@ func (r *UserRepository) Delete(id int) error {
 		return errors.New("Not found user")
 	}
 	return nil
+}
+
+func (r *UserRepository) Update(id int, user *model.UpdateUser) (*model.User, error) {
+	paramsForQuery := []string{}
+	valuesForQuery := []any{}
+	index := 1
+
+	if user.Name != nil {
+		paramsForQuery = append(paramsForQuery, fmt.Sprintf("name = $%d", index))
+		valuesForQuery = append(valuesForQuery, *user.Name)
+		index++
+	}
+
+	if user.Email != nil {
+		paramsForQuery = append(paramsForQuery, fmt.Sprintf("email = $%d", index))
+		valuesForQuery = append(valuesForQuery, *user.Email)
+		index++
+	}
+
+	args := append(valuesForQuery, id)
+	query := fmt.Sprintf(`UPDATE users SET %s WHERE id = $%d RETURNING id, name, email, created_at`,
+		strings.Join(paramsForQuery, ", "),
+		index,
+	)
+
+	userM := &model.User{}
+
+	err := r.db.QueryRow(query, args...).Scan(&userM.ID, &userM.Name, &userM.Email, &userM.CreatedAt)
+	return userM, err
 }

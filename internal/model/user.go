@@ -8,3 +8,8 @@ type User struct {
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type UpdateUser struct {
+	Name  *string `json:"name"`
+	Email *string `json:"email"`
+}

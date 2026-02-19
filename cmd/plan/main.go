@@ -79,6 +79,7 @@ func main() {
 	mux.HandleFunc("POST /user/create", userHandler.Create)
 	mux.HandleFunc("GET /users/{id}", userHandler.GetByID)
 	mux.HandleFunc("DELETE /users/{id}", userHandler.Delete)
+	mux.HandleFunc("PUT /users/{id}", userHandler.Update)
 
 	if err := http.ListenAndServe(":8099", mux); err != nil {
 		log.Fatal(err.Error())

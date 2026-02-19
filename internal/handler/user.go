@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"plan/internal/model"
 	"plan/internal/usecase"
 	"strconv"
 )
@@ -77,4 +78,30 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	idVal, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, "Invalid param id", http.StatusBadRequest)
+		return
+	}
+
+	var userU model.UpdateUser
+	if err := json.NewDecoder(r.Body).Decode(&userU); err != nil {
+		http.Error(w, "Failed pars your params", http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.users.Update(idVal, &userU)
+	if err != nil {
+		message := "Failed update user: " + err.Error()
+		http.Error(w, message, http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(user)
 }

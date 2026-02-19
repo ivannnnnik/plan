@@ -46,3 +46,17 @@ func (u *User) Delete(id int) error {
 
 	return nil
 }
+
+func (u *User) Update(id int, user *model.UpdateUser) (*model.User, error) {
+	_, err := u.userRepo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	userUp, err := u.userRepo.Update(id, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return userUp, nil
+}
